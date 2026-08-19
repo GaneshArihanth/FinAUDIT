@@ -197,7 +197,7 @@ Imagine you are sending a secret letter:
 1.  **The Fingerprint**: We take the entire audit report and put it through a mathematical shredder (SHA-256) that turns it into a unique string of characters called a "Hash".
     - _Analogy_: If you change even one comma in the report, the Hash changes completely.
 2.  **The Signature**: We stamp this Hash with our **Private Key** (which only the system possesses).
-3.  **The Verification**: Anyone with our **Public Key** can unlock the stamp and check the Hash. If it matches, they _know_ the report hasn't been touched since we created it.
+3.  **The Verification**: Anyone with our **Public Key** can unlock the stamp and check the Hash. If it matches, they _know_ the report hasn't been touched since we created it. The public key is published at `GET /api/attestation/public-key`; the private key is held only in the deployment's secret store and is never committed.
 
 ### 6.2 The Tech (Under the Hood)
 
@@ -257,14 +257,37 @@ npm run dev
 ```
 
 **4. Configuration (.env)**
-You must provide keys for the Split-Stack AI:
+Copy `backend/.env.example` to `backend/.env` and fill it in. `.env` is
+git-ignored — never commit real keys.
 
 ```ini
 # For the heavy analysis (Agent)
 GOOGLE_API_KEY=AIzaSy_Gemini3.1_Key...
 # For the fast chat (Chatbot)
 GOOGLE_CHAT_API_KEY=AIzaSy_Gemini3_Key...
+
+# Optional: enables the RapidAPI Gemini fallback. Omit to disable it.
+RAPIDAPI_KEY=
+
+# Optional: RSA signing key for attestations (PKCS8 PEM or base64 PEM).
+# See "Managing the signing key" below.
+ATTESTATION_PRIVATE_KEY=
 ```
+
+**5. Managing the signing key**
+The attestation keypair is **not** part of this repository. On first run the
+backend generates one into `backend/keys/` (git-ignored). That is fine for local
+development, but on an ephemeral host every restart produces a new key and older
+reports stop verifying. For any real deployment, generate a key once and inject
+it as a secret:
+
+```bash
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 | base64
+```
+
+Set the output as `ATTESTATION_PRIVATE_KEY` in your platform's secret store.
+The matching public key is served at `GET /api/attestation/public-key` so anyone
+can verify a report's signature independently.
 
 ---
 

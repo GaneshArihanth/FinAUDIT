@@ -61,6 +61,18 @@ async def analyze_data(file: UploadFile = File(...)):
         "provenance": provenance
     }
 
+@router.get("/attestation/public-key")
+async def attestation_public_key():
+    """
+    Publishes the verification key so third parties can independently check
+    the signature on any report this instance produced.
+    """
+    return {
+        "algorithm": "RSA-SHA256",
+        "public_key_pem": provenance_service.public_key_pem()
+    }
+
+
 from pydantic import BaseModel
 from ai.agent import chat_about_dataset
 

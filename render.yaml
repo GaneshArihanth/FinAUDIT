@@ -11,3 +11,10 @@ services:
         sync: false
       - key: GOOGLE_CHAT_API_KEY
         sync: false
+      # Base64-encoded PKCS8 PEM. Without it each deploy signs with a new,
+      # throwaway key and past attestations stop verifying.
+      - key: ATTESTATION_PRIVATE_KEY
+        sync: false
+      # Optional: enables the RapidAPI Gemini fallback. Omit to disable it.
+      - key: RAPIDAPI_KEY
+        sync: false

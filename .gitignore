@@ -7,6 +7,10 @@ __pycache__/
 venv/
 .env
 
+# Secrets / signing material
+backend/keys/
+*.pem
+
 # Node.js
 node_modules/
 npm-debug.log

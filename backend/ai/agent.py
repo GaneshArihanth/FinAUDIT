@@ -104,9 +104,16 @@ embeddings = GoogleGenerativeAIEmbeddings(
 def fallback_gemini_rapidapi(messages: List[BaseMessage]) -> str:
     """
     Fallback to RapidAPI Gemini Pro if the main API fails.
+    Disabled unless RAPIDAPI_KEY is configured.
     """
+    rapidapi_key = get_local_key("RAPIDAPI_KEY")
+    if not rapidapi_key:
+        raise RuntimeError(
+            "RapidAPI fallback is not configured. Set RAPIDAPI_KEY to enable it."
+        )
+
     print("   ⚠️  [LLM]: Primary API failed. Attempting RapidAPI fallback...")
-    
+
     url = "https://gemini-pro-ai.p.rapidapi.com/"
     
     # Convert LangChain messages to Gemini/RapidAPI format
@@ -138,7 +145,7 @@ def fallback_gemini_rapidapi(messages: List[BaseMessage]) -> str:
     payload = { "contents": contents_parts }
     
     headers = {
-        'x-rapidapi-key': "03f51152d6mshde2289b8bd9eeaap1589f3jsn32e6b69226f4",
+        'x-rapidapi-key': rapidapi_key,
         'x-rapidapi-host': "gemini-pro-ai.p.rapidapi.com",
         'Content-Type': "application/json"
     }
